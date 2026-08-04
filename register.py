@@ -16,6 +16,14 @@ def setup_device_config(device_id: str, workspace_id: str, name: str) -> None:
     print("Device config file created")
 
 def register(token: str, base_url: str) -> None:
+
+    if os.path.exists("config/config.json"):
+        with open("config/config.json") as f:
+            existing = json.load(f)
+        if existing.get("device_id"):
+            print("Already registered:", existing["device_id"])
+            sys.exit(1)
+
     url = f"{base_url.rstrip('/')}/devices/register/{token}"
     with httpx.Client(timeout=10.0) as client:
         response = client.post(url)
