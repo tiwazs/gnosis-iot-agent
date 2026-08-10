@@ -5,10 +5,9 @@ import httpx
 import json
 from loguru import logger
 
+
 from config.logging_setup import setup_logging
-
-DEFAULT_BASE_URL = os.getenv("IOT_BASE_URL", "http://localhost:3000")
-
+from config.settings import load_settings
 
 def setup_device_config(device_id: str, workspace_id: str, name: str) -> None:
     config = {
