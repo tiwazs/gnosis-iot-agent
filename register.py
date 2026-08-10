@@ -57,12 +57,13 @@ def register(token: str, base_url: str) -> None:
 
 def main():
     setup_logging()
+    settings = load_settings()
     parser = argparse.ArgumentParser(description="Register this device with Gnosis IoT")
     parser.add_argument("token", help="Registration code from the workspace (e.g. RPi-XXXX-XXXX)")
     parser.add_argument(
         "--url",
-        default=DEFAULT_BASE_URL,
-        help=f"IoT service base URL (default: {DEFAULT_BASE_URL})",
+        default=settings["iot_base_url"],
+        help=f"IoT service base URL (default: {settings['iot_base_url']})",
     )
     args = parser.parse_args()
 
