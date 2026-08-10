@@ -21,5 +21,6 @@ def load_settings():
         "iot_base_url": os.getenv("IOT_BASE_URL"),
         "device_id": device.get("device_id"),
         "workspace_id": device.get("workspace_id"),
-        "name": device.get("name")
+        "name": device.get("name"),
+        "beacond_url": os.getenv("BEACOND_URL"),
     }
