@@ -18,7 +18,7 @@ class MQTTClient:
         logger.debug("Publishing to {}: {}", topic, payload)
         await self.client.publish(topic, payload)
 
-    async def run(self, publishers):
+    async def run(self, publishers, subscribers):
         while True:
             try:
                 logger.info(
@@ -36,8 +36,16 @@ class MQTTClient:
                     self.client = client
                     logger.info("Connected to MQTT broker")
 
+                    logger.info("Subscribing to topics")
+                    for subscriber in subscribers:
+                        logger.info("Subscribing to topic: {}", subscriber.topic)
+                        await self.client.subscribe(subscriber.topic)
+
+                    by_topic = {subscriber.topic: subscriber for subscriber in subscribers}
+                    
                     await asyncio.gather(
-                        *(publisher.run() for publisher in publishers)
+                        *(publisher.run() for publisher in publishers),
+                        self.listening_loop(by_topic)
                     )
             except aiomqtt.MqttError as e:
                 logger.warning("MQTT error, reconnecting in 3s: {}", e)
@@ -45,3 +53,13 @@ class MQTTClient:
             except Exception as e:
                 logger.exception("Unexpected MQTT client error, retrying in 3s: {}", e)
                 await asyncio.sleep(3)
+
+    async def listening_loop(self, by_topic):
+        async for message in self.client.messages:
+            topic = str(message.topic)
+            subscriber = by_topic.get(topic)
+            if not subscriber:
+                continue
+            
+            payload = message.payload.decode()
+            await subscriber.handle(payload)

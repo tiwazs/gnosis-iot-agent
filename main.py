@@ -5,6 +5,7 @@ from config.logging_setup import setup_logging
 from config.settings import load_settings
 from mqtt.client import MQTTClient
 from publishers.coordinates import CoordinatesPublisher
+from subscribers.commands import CommandsSubscriber
 
 
 async def main():
@@ -28,9 +29,9 @@ async def main():
 
     mqtt = MQTTClient(settings)
     coordinates_publisher = CoordinatesPublisher(settings, mqtt)
-
+    commands_subscriber = CommandsSubscriber(settings, mqtt)
     logger.info("Launching publishers")
-    await mqtt.run([coordinates_publisher])
+    await mqtt.run([coordinates_publisher], [commands_subscriber])
 
 
 if __name__ == "__main__":
