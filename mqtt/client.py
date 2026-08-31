@@ -1,4 +1,5 @@
 import asyncio
+import ssl
 
 import aiomqtt
 from loguru import logger
@@ -10,6 +11,7 @@ class MQTTClient:
         self.mqtt_port = settings["mqtt_port"]
         self.mqtt_username = settings["mqtt_username"]
         self.mqtt_password = settings["mqtt_password"]
+        self.ssl_use = settings["ssl_use"]
         self.device_id = settings["device_id"]
         self.workspace_id = settings["workspace_id"]
         self.client = None
@@ -22,15 +24,18 @@ class MQTTClient:
         while True:
             try:
                 logger.info(
-                    "Connecting to MQTT broker {}:{}",
+                    "Connecting to MQTT broker {}:{} (tls={})",
                     self.mqtt_host,
                     self.mqtt_port,
+                    self.ssl_use,
                 )
+                tls_context = ssl.create_default_context() if self.ssl_use else None
                 async with aiomqtt.Client(
                         self.mqtt_host,
                         self.mqtt_port,
                         username=self.mqtt_username,
                         password=self.mqtt_password,
+                        tls_context=tls_context,
                     ) as client:
 
                     self.client = client
